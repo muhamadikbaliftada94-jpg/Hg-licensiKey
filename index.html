@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HG Admin Panel</title>
+  <style>
+    body { font-family: sans-serif; background: #0e1116; color: #e6edf3; padding: 20px; max-width: 600px; margin: auto; }
+    .box { background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #21262d; margin-bottom: 20px; }
+    input { width: 100%; padding: 10px; margin: 5px 0 15px; background: #0d1117; border: 1px solid #30363d; color: #fff; box-sizing: border-box; }
+    button { width: 100%; padding: 10px; background: #3fb950; border: none; color: #04120a; font-weight: bold; cursor: pointer; border-radius: 6px;}
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;}
+    th, td { padding: 8px; text-align: left; border-bottom: 1px solid #21262d; }
+    th { color: #7d8590; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">HG License Admin</h2>
+  <div class="box">
+    <h3>Tambah Key Baru</h3>
+    <input type="text" id="newKey" placeholder="Contoh: VIP-KENZ-123">
+    <input type="date" id="expired">
+    <button onclick="tambahKey()">Generate Key</button>
+    <p id="msg" style="color:#3fb950; font-weight:bold; text-align:center;"></p>
+  </div>
+  <div class="box">
+    <h3>Daftar Key</h3>
+    <table id="tableKeys">
+      <thead><tr><th>Key</th><th>Expired</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script>
+    async function loadKeys() {
+      const res = await fetch('/api/list-keys');
+      const data = await res.json();
+      const tbody = document.querySelector('#tableKeys tbody');
+      tbody.innerHTML = '';
+      for (let key in data) {
+        tbody.innerHTML += `<tr><td>${key}</td><td>${data[key].expired}</td></tr>`;
+      }
+    }
+    async function tambahKey() {
+      const key = document.getElementById('newKey').value;
+      const expired = document.getElementById('expired').value;
+      const res = await fetch('/api/add-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newKey: key, expired: expired })
+      });
+      const result = await res.json();
+      document.getElementById('msg').innerText = result.message;
+      loadKeys();
+    }
+    loadKeys();
+  </script>
+</body>
+</html>
